@@ -4,8 +4,8 @@
 	{
 		"Version"
 		{
-			"Latest"	"1.7.5"
-			"Previous"	"1.7.4"
+			"Latest"	"1.7.7"
+			"Previous"	"1.7.6"
 		}
 
 		"Notes"			"Jungle Inferno x10"

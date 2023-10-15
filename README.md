@@ -1,3 +1,6 @@
+## This comes with NO SUPPORT
+I am not providing any support or adding any new features, I am only keeping this plugin running as-is.  
+
 ## Multiply A Weapon Stats by 10: The Plugin [![Build Status](https://travis-ci.org/50DKP/TF2x10.svg?branch=master)](https://travis-ci.org/50DKP/TF2x10)
 It's in the name! All weapon stats multipled by 10. Everything about that (un)balanced goodness that you can run on your own TF2 server.
 
