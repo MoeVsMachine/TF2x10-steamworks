@@ -54,3 +54,4 @@ sound/
 /motd.txt
 /stats.txt
 /umc_mapcycle.txt
+.vscode/settings.json

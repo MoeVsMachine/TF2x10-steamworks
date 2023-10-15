@@ -4,10 +4,10 @@ It's in the name! All weapon stats multipled by 10. Everything about that (un)ba
 Join our group for a list of servers running the latest and greatest: http://steamcommunity.com/groups/tf2x10
 
 ### Requirements
-* SourceMod 1.6+
+* SourceMod 1.10+
 * TF2Items
 * TF2Attributes
-* SteamTools
+* SteamWorks
 * Updater
 
 For the Updater bit: there will be times where Valve may change weapon attributes or add new ones. This is to ensure the server gets fast, timely updates to weapon attributes and any possible SourceMod plugin additions we have to complement the update. Highly recommended, but you can compile without the updater requirement if you so wish.

@@ -18,7 +18,7 @@ Github: https://github.com/50DKP/TF2x10
 #include <tf2_stocks>
 #include <tf2items>
 #include <tf2attributes>
-#include <steamtools>
+#include <SteamWorks>
 #include <updater>
 #undef REQUIRE_PLUGIN
 #tryinclude <freak_fortress_2>
@@ -29,7 +29,7 @@ Github: https://github.com/50DKP/TF2x10
 
 #define PLUGIN_NAME			"Multiply a Weapon's Stats by 10"
 #define PLUGIN_AUTHOR		"The TF2x10 group"
-#define PLUGIN_VERSION		"1.7.5"
+#define PLUGIN_VERSION		"1.7.7"
 #define PLUGIN_CONTACT		"http://steamcommunity.com/group/tf2x10/"
 #define PLUGIN_DESCRIPTION	"It's in the name! Also known as TF2x10 or TF20."
 
@@ -127,7 +127,7 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 		return APLRes_Failure;
 	}
 
-	MarkNativeAsOptional("Steam_SetGameDescription");
+	MarkNativeAsOptional("SteamWorks_SetGameDescription");
 	MarkNativeAsOptional("VSH_IsSaxtonHaleModeEnabled");
 	MarkNativeAsOptional("VSH_GetSaxtonHaleUserId");
 	MarkNativeAsOptional("FF2_IsFF2Enabled");
@@ -341,11 +341,11 @@ void SetGameDescription()
 	if(cvarEnabled.BoolValue && cvarGameDesc.BoolValue && StrEqual(description, "Team Fortress"))
 	{
 		Format(description, sizeof(description), "TF2x10 v%s", PLUGIN_VERSION);
-		Steam_SetGameDescription(description);
+		SteamWorks_SetGameDescription(description);
 	}
 	else if((!cvarEnabled.BoolValue || !cvarGameDesc.BoolValue) && StrContains(description, "TF2x10 ") != -1)
 	{
-		Steam_SetGameDescription("Team Fortress");
+		SteamWorks_SetGameDescription("Team Fortress");
 	}
 }
 
@@ -729,7 +729,7 @@ public void OnMapEnd()
 
 	if(cvarEnabled.BoolValue && cvarGameDesc.BoolValue && StrContains(description, "TF2x10 ") != -1)
 	{
-		Steam_SetGameDescription("Team Fortress");
+		SteamWorks_SetGameDescription("Team Fortress");
 	}
 }
 
@@ -2264,7 +2264,7 @@ public Action Timer_FixClips(Handle hTimer, any userid)
 	}
 
 	UpdateVariables(client);
-	TF2_AddCondition(client, TFCond_SpeedBuffAlly, 0.01); //recalc speed - thx sarge
+	TF2_AddCondition(client, 32, 0.01); // recalc speed - thx sarge
 
 	// Apparently the rage meter isn't resetting after switching buffs, so reset it forcefully
 	weapon = GetPlayerWeaponSlot(client, TFWeaponSlot_Secondary);
