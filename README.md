@@ -25,7 +25,7 @@ If you only want the plugin file, `addons/sourcemod/plugins/tf2x10.smx` in this 
 
 ### Versions
 
-A release tag is the tf2x10 plugin version, and `addons/sourcemod/update.txt` carries the same number so the Updater can compare it against a running plugin. CI fails if the tag, `PLUGIN_VERSION` in `tf2x10.sp` and `Latest` in `update.txt` disagree. The randomizer carries its own version (`tf2items_rnd_version`) and is listed in the release notes separately.
+A release tag is the tf2x10 plugin version, and `addons/sourcemod/update.txt` carries the same number so the Updater can compare it against a running plugin. To cut a release, bump both, commit, then push a matching tag (`git tag 1.7.8 && git push origin 1.7.8`); CI builds the archive and publishes it. CI fails if the tag, `PLUGIN_VERSION` in `tf2x10.sp` and `Latest` in `update.txt` disagree. The randomizer carries its own version (`tf2items_rnd_version`) and is listed in the release notes separately.
 
 Building locally needs nothing but bash and curl: `./tools/build.sh` downloads the pinned compiler and includes, then compiles every plugin into `build/`.
 
