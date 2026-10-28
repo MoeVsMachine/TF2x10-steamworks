@@ -2031,7 +2031,7 @@ void CheckHealthCaps(int client)
 	}
 }
 
-public Action OnPlayerShieldBlocked(UserMsg msg_id, Handle bf, const players[], int playersNum, bool reliable, bool init)
+public Action OnPlayerShieldBlocked(UserMsg msg_id, Handle bf, const int[] players, int playersNum, bool reliable, bool init)
 {
 	if(!cvarEnabled.BoolValue || playersNum < 2)
 	{
@@ -2077,7 +2077,7 @@ Gameplay: Player & Item Spawn
 
 ******************************************************************/
 
-public int TF2Items_OnGiveNamedItem_Post(int client, char[] classname, int itemDefinitionIndex, int itemLevel, int itemQuality, int entityIndex)
+public void TF2Items_OnGiveNamedItem_Post(int client, char[] classname, int itemDefinitionIndex, int itemLevel, int itemQuality, int entityIndex)
 {
 	if(!cvarEnabled.BoolValue
 	|| (!cvarIncludeBots.BoolValue && IsFakeClient(client))
