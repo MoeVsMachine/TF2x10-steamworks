@@ -30,7 +30,7 @@ jobs:
     # forks would otherwise execute arbitrary code on a self-hosted runner.
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
 
       - name: Check the version numbers agree
         run: ./tools/check-version.sh
@@ -39,7 +39,7 @@ jobs:
         run: ./tools/build.sh compiled
 
       - name: Upload the built plugins
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v7
         with:
           name: plugins
           path: compiled/*.smx
