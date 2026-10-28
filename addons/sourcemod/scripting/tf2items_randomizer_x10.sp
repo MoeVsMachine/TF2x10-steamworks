@@ -510,14 +510,14 @@ static const String:strWeaponCloakary[][] =
 };
 enum
 {
-	Handle:BonkTimer = 0,
-	Handle:BallTimer,
-	Handle:JarTimer,
-	Handle:EatTimer,
-	Handle:ChargeTimer,
-	Handle:DalokohsTimer,
-	Handle:IgniteArrowTimer,
-	Handle:MaxTimers
+	BonkTimer = 0,
+	BallTimer,
+	JarTimer,
+	EatTimer,
+	ChargeTimer,
+	DalokohsTimer,
+	IgniteArrowTimer,
+	MaxTimers
 };
 enum
 {
@@ -531,18 +531,18 @@ enum
 };
 enum
 {
-	Handle:PrimaryHud,
-	Handle:SecondaryHud,
-	Handle:MeleeHud,
-	Handle:DisguiseHud
+	PrimaryHud,
+	SecondaryHud,
+	MeleeHud,
+	DisguiseHud
 };
 new Handle:hWeaponsHud;
 enum
 {
-	Float:PrimarySavedInfo,
-	Float:SecondarySavedInfo,
-	Float:MeleeSavedInfo,
-	Float:DisguiseSavedInfo
+	PrimarySavedInfo,
+	SecondarySavedInfo,
+	MeleeSavedInfo,
+	DisguiseSavedInfo
 };
 new Handle:hHuds[4];
 new Float:flSavedInfo[MAXPLAYERS + 1][4];
@@ -884,7 +884,7 @@ public Action:Timer_RemoveHealing(Handle:timer, any:userid)
 
 stock DestroyClientBuilding(client, TFObjectType:building, TFObjectMode:mode = TFObjectMode_None)
 {
-	new String:classname[] = "obj_dispenser";
+	new String:classname[16] = "obj_dispenser";
 	switch (building)
 	{
 		case TFObject_Dispenser: classname = "obj_dispenser";
@@ -2879,7 +2879,9 @@ stock DoHudText(client)
 				new token = disguiseteam | (disguiseclass << 2);
 				if (token != flSavedInfo[client][MeleeSavedInfo])
 				{
-					Format(line3, sizeof(line3), "Disguise: %s %s", disguiseteam == (_:TFTeam_Blue) ? "Blue" : "Red", TF2_GetClassName(TFClassType:disguiseclass));
+					new String:className3[32];
+					TF2_GetClassName(TFClassType:disguiseclass, className3, sizeof(className3));
+					Format(line3, sizeof(line3), "Disguise: %s %s", disguiseteam == (_:TFTeam_Blue) ? "Blue" : "Red", className3);
 					flSavedInfo[client][MeleeSavedInfo] = float(token);
 				}
 			}
@@ -2954,7 +2956,9 @@ stock DoHudText(client)
 		new token = disguiseteam | (disguiseclass << 2);
 		if (token != flSavedInfo[client][DisguiseSavedInfo])
 		{
-			Format(line4, sizeof(line4), "Disguise: %s %s", disguiseteam == (_:TFTeam_Blue) ? "Blue" : "Red", TF2_GetClassName(TFClassType:disguiseclass));
+			new String:className4[32];
+			TF2_GetClassName(TFClassType:disguiseclass, className4, sizeof(className4));
+			Format(line4, sizeof(line4), "Disguise: %s %s", disguiseteam == (_:TFTeam_Blue) ? "Blue" : "Red", className4);
 			flSavedInfo[client][DisguiseSavedInfo] = float(token);
 		}
 		if (line4[0] != '\0')
@@ -2969,22 +2973,21 @@ stock DoHudText(client)
 	}
 }
 
-stock String:TF2_GetClassName(TFClassType:class)
+stock TF2_GetClassName(TFClassType:class, String:strClass[], maxlen)
 {
-	new String:strClass[32] = "Unknown";
+	strcopy(strClass, maxlen, "Unknown");
 	switch (class)
 	{
-		case TFClass_Scout: strClass = "Scout";
-		case TFClass_Sniper: strClass = "Sniper";
-		case TFClass_Soldier: strClass = "Soldier";
-		case TFClass_DemoMan: strClass = "Demoman";
-		case TFClass_Medic: strClass = "Medic";
-		case TFClass_Heavy: strClass = "Heavy";
-		case TFClass_Pyro: strClass = "Pyro";
-		case TFClass_Spy: strClass = "Spy";
-		case TFClass_Engineer: strClass = "Engineer";
+		case TFClass_Scout: strcopy(strClass, maxlen, "Scout");
+		case TFClass_Sniper: strcopy(strClass, maxlen, "Sniper");
+		case TFClass_Soldier: strcopy(strClass, maxlen, "Soldier");
+		case TFClass_DemoMan: strcopy(strClass, maxlen, "Demoman");
+		case TFClass_Medic: strcopy(strClass, maxlen, "Medic");
+		case TFClass_Heavy: strcopy(strClass, maxlen, "Heavy");
+		case TFClass_Pyro: strcopy(strClass, maxlen, "Pyro");
+		case TFClass_Spy: strcopy(strClass, maxlen, "Spy");
+		case TFClass_Engineer: strcopy(strClass, maxlen, "Engineer");
 	}
-	return strClass;
 }
 stock ClearHudText(client)
 {
@@ -3835,7 +3838,7 @@ SetSandvich(client)
 
 public Action:SetSandvichTimer(Handle:timer, any:userid)
 {
-	static NumPrinted[MAXPLAYERS + 1] = 0;
+	static NumPrinted[MAXPLAYERS + 1] = { 0, ... };
 	new client = GetClientOfUserId(userid);
 	if (!IsValidClient(client))
 	{
@@ -3889,7 +3892,7 @@ SetDalokohs(client)//, bool:fishcake=false)
 #define DALOKOHS_HEALING 25
 public Action:SetDalokohsTimer(Handle:timer, any:userid)
 {
-	static NumPrinted[MAXPLAYERS + 1] = 0;
+	static NumPrinted[MAXPLAYERS + 1] = { 0, ... };
 	new client = GetClientOfUserId(userid);
 	if (!IsValidClient(client))
 	{
@@ -7224,7 +7227,12 @@ public Action:Timer_ResetOwner(Handle:timer, Handle:pack)
 }*/
 stock GiveWeaponOfIndex(client, weaponLookupIndex)
 {
-	if (bCvarDebug) LogMessage("Giving weapon %d to client %d %N team %d class %s", weaponLookupIndex, client, client, GetClientTeam(client), TF2_GetClassName(TF2_GetPlayerClass(client)));
+	if (bCvarDebug)
+	{
+		new String:className[32];
+		TF2_GetClassName(TF2_GetPlayerClass(client), className, sizeof(className));
+		LogMessage("Giving weapon %d to client %d %N team %d class %s", weaponLookupIndex, client, client, GetClientTeam(client), className);
+	}
 	decl String:strSteamID[32];
 
 	new weaponSlot;
@@ -7867,7 +7875,7 @@ public Action:TF2_CalcIsAttackCritical(client, weapon, String:weaponname[], &boo
 	if (class != TFClass_Engineer && weapon > MaxClients && IsValidEntity(weapon) && StrEqual(weaponname, "tf_weapon_wrench", false) && GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 155)
 	{
 //		PrintToChatAll("%s", result ? "yes" : "no");
-		static sequences[TFClassType+TFClassType:1][4] =	//best declaration ever
+		static sequences[11][4] =	//best declaration ever (TFClass_Civilian + 1)
 		{
 			{ 0, 0, 0, 0 },
 			{ 1, 5, 3, 4 },
