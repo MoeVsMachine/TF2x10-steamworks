@@ -1,7 +1,7 @@
 ## This comes with NO SUPPORT
 I am not providing any support or adding any new features, I am only keeping this plugin running as-is.  
 
-## Multiply A Weapon Stats by 10: The Plugin [![Build Status](https://travis-ci.org/50DKP/TF2x10.svg?branch=master)](https://travis-ci.org/50DKP/TF2x10)
+## Multiply A Weapon Stats by 10: The Plugin [![Build](https://github.com/MoeVsMachine/TF2x10-steamworks/actions/workflows/build.yml/badge.svg)](https://github.com/MoeVsMachine/TF2x10-steamworks/actions/workflows/build.yml)
 It's in the name! All weapon stats multipled by 10. Everything about that (un)balanced goodness that you can run on your own TF2 server.
 
 Join our group for a list of servers running the latest and greatest: http://steamcommunity.com/groups/tf2x10
@@ -11,9 +11,23 @@ Join our group for a list of servers running the latest and greatest: http://ste
 * TF2Items
 * TF2Attributes
 * SteamWorks
-* Updater
+* Updater (optional, for automatic updates)
 
 For the Updater bit: there will be times where Valve may change weapon attributes or add new ones. This is to ensure the server gets fast, timely updates to weapon attributes and any possible SourceMod plugin additions we have to complement the update. Highly recommended, but you can compile without the updater requirement if you so wish.
+
+Both plugins also need `addons/sourcemod/gamedata/tf2items.randomizer.txt`, which ships with [TF2Items] Randomizer. Without it they stop at startup.
+
+### Downloading
+
+Every release contains `tf2x10-<version>.zip`, which mirrors the `tf2` folder: extract it into `tf2/` and the plugins, configs and update manifest land in the right places. The `.smx` and config files are attached individually as well. The randomizer is optional and can be dropped; tf2x10 does not need it.
+
+If you only want the plugin file, `addons/sourcemod/plugins/tf2x10.smx` in this repository is rebuilt on every push to `master`, and is the copy the Updater downloads.
+
+### Versions
+
+A release tag is the tf2x10 plugin version, and `addons/sourcemod/update.txt` carries the same number so the Updater can compare it against a running plugin. CI fails if the tag, `PLUGIN_VERSION` in `tf2x10.sp` and `Latest` in `update.txt` disagree. The randomizer carries its own version (`tf2items_rnd_version`) and is listed in the release notes separately.
+
+Building locally needs nothing but bash and curl: `./tools/build.sh` downloads the pinned compiler and includes, then compiles every plugin into `build/`.
 
 
 ### Cvars
@@ -78,7 +92,7 @@ TF2x10's goal is for 100% compatibility with game mods. There may be one or two 
 
 * **Advanced Weaponiser**: due to the way it gives weapons, will not load tf2x10 if present.
 * **Freak Fortress 2 & VS Saxton Hale**: should work mostly but some things (e.g. powerjack) and kunai may need to be adjusted. will post when I can get together everything.
-* **Randomizer**: currently has something going with it that it crashes(?) it may be my server. In my bitbucket, there's a very unstable randomizer in it that you can try out, but I'd much rather get it to where the x10 plugin can take over stuff without needing to modify the actual plugin.
+* **Randomizer**: an x10 fork of [TF2Items] Randomizer is built from this repository and included in each release. It is a separate plugin; x10 does not require it.
 
 
 ### Credits and Thanks
