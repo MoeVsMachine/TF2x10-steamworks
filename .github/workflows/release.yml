@@ -1,0 +1,83 @@
+name: Release
+
+# Publishing a tag builds both plugins and attaches a ready-to-extract archive.
+# The tag must equal the tf2x10 plugin version, which in turn must equal the
+# "Latest" entry in update.txt, or the Updater will chase a version that never
+# arrives. tools/check-version.sh enforces all three.
+on:
+  push:
+    tags: ["*"]
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check the tag matches the plugin versions
+        run: ./tools/check-version.sh "${GITHUB_REF_NAME}"
+
+      - name: Build
+        run: ./tools/build.sh compiled
+
+      - name: Package
+        run: |
+          set -euo pipefail
+          version="${GITHUB_REF_NAME}"
+          staging="tf2x10-${version}"
+          mkdir -p "$staging/addons/sourcemod/plugins" \
+                   "$staging/addons/sourcemod/configs" \
+                   "$staging/addons/sourcemod/scripting"
+          cp compiled/*.smx "$staging/addons/sourcemod/plugins/"
+          cp addons/sourcemod/configs/*.txt "$staging/addons/sourcemod/configs/"
+          cp addons/sourcemod/update.txt "$staging/addons/sourcemod/"
+          cp addons/sourcemod/scripting/*.sp "$staging/addons/sourcemod/scripting/"
+          zip -qr "tf2x10-${version}.zip" "$staging"
+          unzip -l "tf2x10-${version}.zip"
+
+      - name: Write the release notes
+        run: |
+          set -euo pipefail
+          versions=$(./tools/check-version.sh "${GITHUB_REF_NAME}")
+          tf2x10=$(printf '%s\n' "$versions" | awk '/^tf2x10\.sp/ {print $2}')
+          randomizer=$(printf '%s\n' "$versions" | awk '/^randomizer/ {print $2}')
+          notes=$(sed -n 's/^[[:space:]]*"Notes"[[:space:]]*"\(.*\)".*/\1/p' addons/sourcemod/update.txt | head -n 1)
+
+          cat > RELEASE_NOTES.md <<EOF
+          Built from ${GITHUB_SHA::7} with SourceMod 1.12.0.7255.
+
+          | plugin | version |
+          |---|---|
+          | tf2x10.smx | ${tf2x10} |
+          | tf2items_randomizer.smx | ${randomizer} |
+
+          ## Install
+
+          Download \`tf2x10-${GITHUB_REF_NAME}.zip\` and extract it into your \`tf2\` folder, so the contents land in \`tf2/addons/sourcemod/\`. The individual files are attached as well if you only want one of the two plugins.
+
+          Both plugins stop at startup without \`addons/sourcemod/gamedata/tf2items.randomizer.txt\`, which comes with [TF2Items] Randomizer. tf2x10 also needs TF2Items, TF2Attributes, SteamWorks and optionally Updater; the randomizer needs TF2Items and TF2Attributes.
+
+          ## Notes
+
+          ${notes}
+          EOF
+          cat RELEASE_NOTES.md >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Publish
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          version="${GITHUB_REF_NAME}"
+          gh release create "$version" \
+            --title "TF2x10 ${version}" \
+            --notes-file RELEASE_NOTES.md \
+            "tf2x10-${version}.zip" \
+            compiled/tf2x10.smx \
+            compiled/tf2items_randomizer.smx \
+            addons/sourcemod/configs/x10.default.txt \
+            addons/sourcemod/configs/x10.vshff2.txt \
+            addons/sourcemod/configs/x10.aprilfools.txt

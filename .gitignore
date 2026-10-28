@@ -56,3 +56,7 @@ sound/
 /stats.txt
 /umc_mapcycle.txt
 .vscode/settings.json
+
+# build output
+/build/
+/compiled/

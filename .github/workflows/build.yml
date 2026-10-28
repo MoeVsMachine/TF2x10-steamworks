@@ -1,0 +1,63 @@
+name: Build
+
+# Compiles both plugins and keeps addons/sourcemod/plugins in step with the source,
+# because that is where the Updater fetches tf2x10.smx from. The commit only touches
+# addons/sourcemod/plugins, which is not in the trigger paths, so it cannot loop.
+on:
+  push:
+    branches: [master]
+    paths:
+      - "addons/sourcemod/scripting/**"
+      - "tools/**"
+      - ".github/workflows/build.yml"
+  pull_request:
+    paths:
+      - "addons/sourcemod/scripting/**"
+      - "tools/**"
+      - ".github/workflows/build.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: build-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  build:
+    # GitHub-hosted on purpose: this is a public repository, so pull requests from
+    # forks would otherwise execute arbitrary code on a self-hosted runner.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check the version numbers agree
+        run: ./tools/check-version.sh
+
+      - name: Build
+        run: ./tools/build.sh compiled
+
+      - name: Upload the built plugins
+        uses: actions/upload-artifact@v4
+        with:
+          name: plugins
+          path: compiled/*.smx
+          if-no-files-found: error
+
+      - name: Commit the built plugins
+        if: github.event_name == 'push' && github.ref == 'refs/heads/master' && github.actor != 'github-actions[bot]'
+        run: |
+          set -euo pipefail
+          mkdir -p addons/sourcemod/plugins
+          cp compiled/*.smx addons/sourcemod/plugins/
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add addons/sourcemod/plugins
+          if git diff --cached --quiet; then
+            echo "Built plugins unchanged, nothing to commit."
+            exit 0
+          fi
+          git commit -m "Build plugins ($(git rev-parse --short HEAD), SourceMod 1.12.0.7255)"
+          git pull --rebase origin master
+          git push origin HEAD:master
