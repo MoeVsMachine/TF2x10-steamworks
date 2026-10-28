@@ -31,10 +31,15 @@ jobs:
           # wrapper directory, so `unzip tf2x10-<version>.zip -d tf2/` is the whole
           # install. Sources stay in the repository and in the loose assets.
           staging="$RUNNER_TEMP/tf2x10-${version}"
-          mkdir -p "$staging/addons/sourcemod/plugins" \
+          mkdir -p "$staging/addons/sourcemod/plugins/disabled" \
                    "$staging/addons/sourcemod/configs"
-          cp compiled/tf2x10.smx compiled/tf2items_randomizer.smx "$staging/addons/sourcemod/plugins/"
+          cp compiled/tf2x10.smx "$staging/addons/sourcemod/plugins/"
+          # SourceMod loads every .smx under plugins/ except disabled/. The randomizer is
+          # optional and overlaps tf2x10 (same gamedata, same item-give path), so ship it
+          # inert and let the operator move it up if they want it.
+          cp compiled/tf2items_randomizer.smx "$staging/addons/sourcemod/plugins/disabled/"
           cp addons/sourcemod/configs/x10.*.txt "$staging/addons/sourcemod/configs/"
+          rm -f "tf2x10-${version}.zip"
           ( cd "$staging" && zip -qr "$GITHUB_WORKSPACE/tf2x10-${version}.zip" addons )
           unzip -l "tf2x10-${version}.zip"
 
@@ -56,7 +61,7 @@ jobs:
 
           ## Install
 
-          Download \`tf2x10-${GITHUB_REF_NAME}.zip\` and extract it into your \`tf2\` folder. The archive is laid out as \`addons/sourcemod/...\` with no top-level directory, so the plugins and configs land where SourceMod reads them. Delete \`plugins/tf2items_randomizer.smx\` if you do not want the randomizer; tf2x10 does not need it. Each file is attached individually as well.
+          Download \`tf2x10-${GITHUB_REF_NAME}.zip\` and extract it into your \`tf2\` folder. The archive is laid out as \`addons/sourcemod/...\` with no top-level directory, so the plugins and configs land where SourceMod reads them. The randomizer ships in \`plugins/disabled/\`; move it into \`plugins/\` if you want it, tf2x10 does not need it. Each file is attached individually as well.
 
           Both plugins stop at startup without \`addons/sourcemod/gamedata/tf2items.randomizer.txt\`, which comes with [TF2Items] Randomizer. tf2x10 also needs TF2Items, TF2Attributes, SteamWorks and optionally Updater; the randomizer needs TF2Items and TF2Attributes.
 
