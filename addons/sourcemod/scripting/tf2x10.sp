@@ -29,11 +29,11 @@ Github: https://github.com/50DKP/TF2x10
 
 #define PLUGIN_NAME			"Multiply a Weapon's Stats by 10"
 #define PLUGIN_AUTHOR		"The TF2x10 group"
-#define PLUGIN_VERSION		"1.7.7"
+#define PLUGIN_VERSION		"1.7.8"
 #define PLUGIN_CONTACT		"http://steamcommunity.com/group/tf2x10/"
 #define PLUGIN_DESCRIPTION	"It's in the name! Also known as TF2x10 or TF20."
 
-#define UPDATE_URL			"http://50dkp.github.io/TF2x10/addons/sourcemod/update.txt"
+#define UPDATE_URL			"https://raw.githubusercontent.com/MoeVsMachine/TF2x10-steamworks/master/addons/sourcemod/update.txt"
 
 #define KUNAI_DAMAGE			2100
 #define DALOKOH_MAXHEALTH		800
@@ -2031,7 +2031,7 @@ void CheckHealthCaps(int client)
 	}
 }
 
-public Action OnPlayerShieldBlocked(UserMsg msg_id, Handle bf, const players[], int playersNum, bool reliable, bool init)
+public Action OnPlayerShieldBlocked(UserMsg msg_id, Handle bf, const int[] players, int playersNum, bool reliable, bool init)
 {
 	if(!cvarEnabled.BoolValue || playersNum < 2)
 	{
@@ -2077,7 +2077,7 @@ Gameplay: Player & Item Spawn
 
 ******************************************************************/
 
-public int TF2Items_OnGiveNamedItem_Post(int client, char[] classname, int itemDefinitionIndex, int itemLevel, int itemQuality, int entityIndex)
+public void TF2Items_OnGiveNamedItem_Post(int client, char[] classname, int itemDefinitionIndex, int itemLevel, int itemQuality, int entityIndex)
 {
 	if(!cvarEnabled.BoolValue
 	|| (!cvarIncludeBots.BoolValue && IsFakeClient(client))

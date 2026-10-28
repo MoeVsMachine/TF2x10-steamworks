@@ -4,11 +4,11 @@
 	{
 		"Version"
 		{
-			"Latest"	"1.7.7"
-			"Previous"	"1.7.6"
+			"Latest"	"1.7.8"
+			"Previous"	"1.7.7"
 		}
 
-		"Notes"			"Jungle Inferno x10"
+		"Notes"			"Builds from source again; Randomizer ported to SteamWorks"
 	}
 
 	"Files"

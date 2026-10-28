@@ -7,7 +7,7 @@
 #include <tf2items>
 #include <tf2attributes>
 #undef REQUIRE_EXTENSIONS
-#tryinclude <steamtools>
+#tryinclude <SteamWorks>
 #define REQUIRE_EXTENSIONS
 #undef REQUIRE_PLUGIN
 #tryinclude <tf2items_giveweapon>
@@ -18,7 +18,7 @@
 
 #define PLUGIN_NAME		"[TF2Items] Randomizer"
 #define PLUGIN_AUTHOR		"FlaminSarge"
-#define PLUGIN_VERSION		"1.592" //As of Sep24, 2014
+#define PLUGIN_VERSION		"1.593" // 1.592 + SteamWorks game description
 #define PLUGIN_CONTACT		"https://forums.alliedmods.net/showthread.php?t=139069"
 #define PLUGIN_DESCRIPTION	"[TF2] Randomizer rebuilt around the TF2Items extension"
 
@@ -46,8 +46,8 @@ new bool:bUbered[MAXPLAYERS + 1] = { false, ... };
 new bool:bVisWeps = false;
 #endif
 new bool:tf2items_giveweapon = false;
-#if defined _steamtools_included
-new bool:steamtools = false;
+#if defined _SteamWorks_Included
+new bool:steamworks = false;
 #endif
 new Handle:hSDKEquipWearable;
 new bool:bSDKStarted;
@@ -77,7 +77,7 @@ new bool:bCvarCustomWeapons;
 //new bool:cvar_fixreload;
 new bool:bCvarGoldenWrench;
 new bool:bCvarFixFood;
-#if defined _steamtools_included
+#if defined _SteamWorks_Included
 new bool:bCvarGameDesc;
 #endif
 new bool:bCvarSpyCloak;
@@ -510,14 +510,14 @@ static const String:strWeaponCloakary[][] =
 };
 enum
 {
-	Handle:BonkTimer = 0,
-	Handle:BallTimer,
-	Handle:JarTimer,
-	Handle:EatTimer,
-	Handle:ChargeTimer,
-	Handle:DalokohsTimer,
-	Handle:IgniteArrowTimer,
-	Handle:MaxTimers
+	BonkTimer = 0,
+	BallTimer,
+	JarTimer,
+	EatTimer,
+	ChargeTimer,
+	DalokohsTimer,
+	IgniteArrowTimer,
+	MaxTimers
 };
 enum
 {
@@ -531,18 +531,18 @@ enum
 };
 enum
 {
-	Handle:PrimaryHud,
-	Handle:SecondaryHud,
-	Handle:MeleeHud,
-	Handle:DisguiseHud
+	PrimaryHud,
+	SecondaryHud,
+	MeleeHud,
+	DisguiseHud
 };
 new Handle:hWeaponsHud;
 enum
 {
-	Float:PrimarySavedInfo,
-	Float:SecondarySavedInfo,
-	Float:MeleeSavedInfo,
-	Float:DisguiseSavedInfo
+	PrimarySavedInfo,
+	SecondarySavedInfo,
+	MeleeSavedInfo,
+	DisguiseSavedInfo
 };
 new Handle:hHuds[4];
 new Float:flSavedInfo[MAXPLAYERS + 1][4];
@@ -569,10 +569,10 @@ new Handle:hItemInfoTrie = INVALID_HANDLE;
 //new Handle:hMaxHealth;
 //new Handle:hHeal_Radius;
 
-#if defined _steamtools_included
+#if defined _SteamWorks_Included
 public APLRes:AskPluginLoad2(Handle:myself, bool:late, String:error[], err_max)
 {
-	MarkNativeAsOptional("Steam_SetGameDescription");
+	MarkNativeAsOptional("SteamWorks_SetGameDescription");
 	return APLRes_Success;
 }
 #endif
@@ -606,8 +606,8 @@ public OnPluginStart()
 //	new Handle:cv_fixreload = CreateConVar("tf2items_rnd_fix_reload", "1", "Stops Revolver reload exploit for non-spies.", FCVAR_PLUGIN, true, 0.0, true, 1.0);
 	new Handle:cv_goldenwrench = CreateConVar("tf2items_rnd_godweapons", "1", "Allows Randomizer to give the Golden Wrench, Headtaker, Saxxy.", FCVAR_PLUGIN, true, 0.0, true, 1.0);
 	new Handle:cv_fixfood = CreateConVar("tf2items_rnd_fix_food", "1", "Emulates Food items for non-Heavies and non-Scouts", FCVAR_PLUGIN, true, 0.0, true, 1.0);
-#if defined _steamtools_included
-	new Handle:cv_gamedesc = CreateConVar("tf2items_rnd_gamedesc", "1", "1 - [TF2Items]Randomizer x10 vVERSION when Randomizer is enabled. Requires Steamtools.", FCVAR_PLUGIN, true, 0.0, true, 1.0);
+#if defined _SteamWorks_Included
+	new Handle:cv_gamedesc = CreateConVar("tf2items_rnd_gamedesc", "1", "1 - [TF2Items]Randomizer x10 vVERSION when Randomizer is enabled. Requires SteamWorks.", FCVAR_PLUGIN, true, 0.0, true, 1.0);
 #endif
 //	new Handle:cv_gdmanifix = CreateConVar("tf2items_rnd_manifix_gd", "0", "If gamedesc is on, enable if 3rd party plugins have trouble detecting gametype", FCVAR_PLUGIN, true, 0.0, true, 1.0);
 	new Handle:cv_spycloak = CreateConVar("tf2items_rnd_cloaks", "1", "If enabled, randomize a Spy's cloak", FCVAR_PLUGIN, true, 0.0, true, 1.0);
@@ -627,7 +627,7 @@ public OnPluginStart()
 //	HookConVarChange(cv_fixreload, cvhook_fixreload);
 	HookConVarChange(cv_goldenwrench, cvhook_goldenwrench);
 	HookConVarChange(cv_fixfood, cvhook_fixfood);
-#if defined _steamtools_included
+#if defined _SteamWorks_Included
 	HookConVarChange(cv_gamedesc, cvhook_gamedesc);
 #endif
 //	HookConVarChange(cv_gdmanifix, cvhook_manifix);
@@ -651,7 +651,7 @@ public OnPluginStart()
 //	cvar_fixreload = GetConVarBool(cv_fixreload);
 	bCvarGoldenWrench = GetConVarBool(cv_goldenwrench);
 	bCvarFixFood = GetConVarBool(cv_fixfood);
-#if defined _steamtools_included
+#if defined _SteamWorks_Included
 	bCvarGameDesc = GetConVarBool(cv_gamedesc);
 #endif
 //	cvar_manifix = GetConVarBool(cv_gdmanifix);
@@ -714,8 +714,8 @@ public OnPluginStart()
 	bVisWeps = LibraryExists("visweps");
 #endif
 	tf2items_giveweapon = LibraryExists("tf2items_giveweapon");
-#if defined _steamtools_included
-	steamtools = LibraryExists("SteamTools");
+#if defined _SteamWorks_Included
+	steamworks = LibraryExists("SteamWorks");
 #endif
 
 	for (new client = 1; client <= MaxClients; client++)
@@ -884,7 +884,7 @@ public Action:Timer_RemoveHealing(Handle:timer, any:userid)
 
 stock DestroyClientBuilding(client, TFObjectType:building, TFObjectMode:mode = TFObjectMode_None)
 {
-	new String:classname[] = "obj_dispenser";
+	new String:classname[16] = "obj_dispenser";
 	switch (building)
 	{
 		case TFObject_Dispenser: classname = "obj_dispenser";
@@ -927,10 +927,10 @@ public OnLibraryRemoved(const String:name[])
 	{
 		tf2items_giveweapon = false;
 	}
-#if defined _steamtools_included
-	if (StrEqual(name, "SteamTools"))
+#if defined _SteamWorks_Included
+	if (StrEqual(name, "SteamWorks"))
 	{
-		steamtools = false;
+		steamworks = false;
 	}
 #endif
 	if (bCvarDebug) LogMessage("Library %s removed from Randomizer", name);
@@ -948,10 +948,10 @@ public OnLibraryAdded(const String:name[])
 	{
 		tf2items_giveweapon = true;
 	}
-#if defined _steamtools_included
-	if (StrEqual(name, "SteamTools"))
+#if defined _SteamWorks_Included
+	if (StrEqual(name, "SteamWorks"))
 	{
-		steamtools = true;
+		steamworks = true;
 	}
 #endif
 	if (bCvarDebug) LogMessage("Library %s added for Randomizer", name);
@@ -1179,12 +1179,12 @@ public cvhook_enabled(Handle:cvar, const String:oldVal[], const String:newVal[])
 			if (IsClientInGame(i) && IsPlayerAlive(i)) TF2_RespawnPlayer(i);
 		}
 		PrintToChatAll("[TF2Items]Randomizer x10 Enabled!");
-#if defined _steamtools_included
-		if (steamtools && bCvarGameDesc)
+#if defined _SteamWorks_Included
+		if (steamworks && bCvarGameDesc)
 		{
 			decl String:gameDesc[64];
 			Format(gameDesc, sizeof(gameDesc), "[TF2Items]Randomizer x10 v%s", PLUGIN_VERSION);
-			Steam_SetGameDescription(gameDesc);
+			SteamWorks_SetGameDescription(gameDesc);
 		}
 #endif
 	}
@@ -1200,10 +1200,10 @@ public cvhook_enabled(Handle:cvar, const String:oldVal[], const String:newVal[])
 			}
 		}
 		PrintToChatAll("[TF2Items]Randomizer x10 Disabled!");
-#if defined _steamtools_included
-		if (steamtools && bCvarGameDesc)
+#if defined _SteamWorks_Included
+		if (steamworks && bCvarGameDesc)
 		{
-			Steam_SetGameDescription("Team Fortress");
+			SteamWorks_SetGameDescription("Team Fortress");
 		}
 #endif
 	}
@@ -1221,7 +1221,7 @@ public cvhook_customweapons(Handle:cvar, const String:oldVal[], const String:new
 //public cvhook_fixreload(Handle:cvar, const String:oldVal[], const String:newVal[]) { cvar_fixreload = GetConVarBool(cvar); }
 public cvhook_goldenwrench(Handle:cvar, const String:oldVal[], const String:newVal[]) { bCvarGoldenWrench = GetConVarBool(cvar); }
 public cvhook_fixfood(Handle:cvar, const String:oldVal[], const String:newVal[]) { bCvarFixFood = GetConVarBool(cvar); }
-#if defined _steamtools_included
+#if defined _SteamWorks_Included
 public cvhook_gamedesc(Handle:cvar, const String:oldVal[], const String:newVal[]) { bCvarGameDesc = GetConVarBool(cvar); }
 #endif
 //public cvhook_manifix(Handle:cvar, const String:oldVal[], const String:newVal[]) { cvar_manifix = GetConVarBool(cvar); }
@@ -2879,7 +2879,9 @@ stock DoHudText(client)
 				new token = disguiseteam | (disguiseclass << 2);
 				if (token != flSavedInfo[client][MeleeSavedInfo])
 				{
-					Format(line3, sizeof(line3), "Disguise: %s %s", disguiseteam == (_:TFTeam_Blue) ? "Blue" : "Red", TF2_GetClassName(TFClassType:disguiseclass));
+					new String:className3[32];
+					TF2_GetClassName(TFClassType:disguiseclass, className3, sizeof(className3));
+					Format(line3, sizeof(line3), "Disguise: %s %s", disguiseteam == (_:TFTeam_Blue) ? "Blue" : "Red", className3);
 					flSavedInfo[client][MeleeSavedInfo] = float(token);
 				}
 			}
@@ -2954,7 +2956,9 @@ stock DoHudText(client)
 		new token = disguiseteam | (disguiseclass << 2);
 		if (token != flSavedInfo[client][DisguiseSavedInfo])
 		{
-			Format(line4, sizeof(line4), "Disguise: %s %s", disguiseteam == (_:TFTeam_Blue) ? "Blue" : "Red", TF2_GetClassName(TFClassType:disguiseclass));
+			new String:className4[32];
+			TF2_GetClassName(TFClassType:disguiseclass, className4, sizeof(className4));
+			Format(line4, sizeof(line4), "Disguise: %s %s", disguiseteam == (_:TFTeam_Blue) ? "Blue" : "Red", className4);
 			flSavedInfo[client][DisguiseSavedInfo] = float(token);
 		}
 		if (line4[0] != '\0')
@@ -2969,22 +2973,21 @@ stock DoHudText(client)
 	}
 }
 
-stock String:TF2_GetClassName(TFClassType:class)
+stock TF2_GetClassName(TFClassType:class, String:strClass[], maxlen)
 {
-	new String:strClass[32] = "Unknown";
+	strcopy(strClass, maxlen, "Unknown");
 	switch (class)
 	{
-		case TFClass_Scout: strClass = "Scout";
-		case TFClass_Sniper: strClass = "Sniper";
-		case TFClass_Soldier: strClass = "Soldier";
-		case TFClass_DemoMan: strClass = "Demoman";
-		case TFClass_Medic: strClass = "Medic";
-		case TFClass_Heavy: strClass = "Heavy";
-		case TFClass_Pyro: strClass = "Pyro";
-		case TFClass_Spy: strClass = "Spy";
-		case TFClass_Engineer: strClass = "Engineer";
+		case TFClass_Scout: strcopy(strClass, maxlen, "Scout");
+		case TFClass_Sniper: strcopy(strClass, maxlen, "Sniper");
+		case TFClass_Soldier: strcopy(strClass, maxlen, "Soldier");
+		case TFClass_DemoMan: strcopy(strClass, maxlen, "Demoman");
+		case TFClass_Medic: strcopy(strClass, maxlen, "Medic");
+		case TFClass_Heavy: strcopy(strClass, maxlen, "Heavy");
+		case TFClass_Pyro: strcopy(strClass, maxlen, "Pyro");
+		case TFClass_Spy: strcopy(strClass, maxlen, "Spy");
+		case TFClass_Engineer: strcopy(strClass, maxlen, "Engineer");
 	}
-	return strClass;
 }
 stock ClearHudText(client)
 {
@@ -3835,7 +3838,7 @@ SetSandvich(client)
 
 public Action:SetSandvichTimer(Handle:timer, any:userid)
 {
-	static NumPrinted[MAXPLAYERS + 1] = 0;
+	static NumPrinted[MAXPLAYERS + 1] = { 0, ... };
 	new client = GetClientOfUserId(userid);
 	if (!IsValidClient(client))
 	{
@@ -3889,7 +3892,7 @@ SetDalokohs(client)//, bool:fishcake=false)
 #define DALOKOHS_HEALING 25
 public Action:SetDalokohsTimer(Handle:timer, any:userid)
 {
-	static NumPrinted[MAXPLAYERS + 1] = 0;
+	static NumPrinted[MAXPLAYERS + 1] = { 0, ... };
 	new client = GetClientOfUserId(userid);
 	if (!IsValidClient(client))
 	{
@@ -7224,7 +7227,12 @@ public Action:Timer_ResetOwner(Handle:timer, Handle:pack)
 }*/
 stock GiveWeaponOfIndex(client, weaponLookupIndex)
 {
-	if (bCvarDebug) LogMessage("Giving weapon %d to client %d %N team %d class %s", weaponLookupIndex, client, client, GetClientTeam(client), TF2_GetClassName(TF2_GetPlayerClass(client)));
+	if (bCvarDebug)
+	{
+		new String:className[32];
+		TF2_GetClassName(TF2_GetPlayerClass(client), className, sizeof(className));
+		LogMessage("Giving weapon %d to client %d %N team %d class %s", weaponLookupIndex, client, client, GetClientTeam(client), className);
+	}
 	decl String:strSteamID[32];
 
 	new weaponSlot;
@@ -7867,7 +7875,7 @@ public Action:TF2_CalcIsAttackCritical(client, weapon, String:weaponname[], &boo
 	if (class != TFClass_Engineer && weapon > MaxClients && IsValidEntity(weapon) && StrEqual(weaponname, "tf_weapon_wrench", false) && GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") == 155)
 	{
 //		PrintToChatAll("%s", result ? "yes" : "no");
-		static sequences[TFClassType+TFClassType:1][4] =	//best declaration ever
+		static sequences[11][4] =	//best declaration ever (TFClass_Civilian + 1)
 		{
 			{ 0, 0, 0, 0 },
 			{ 1, 5, 3, 4 },
