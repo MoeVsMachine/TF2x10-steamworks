@@ -27,15 +27,15 @@ jobs:
         run: |
           set -euo pipefail
           version="${GITHUB_REF_NAME}"
-          staging="tf2x10-${version}"
+          # Only what a server needs, laid out as it sits under tf2/ and with no
+          # wrapper directory, so `unzip tf2x10-<version>.zip -d tf2/` is the whole
+          # install. Sources stay in the repository and in the loose assets.
+          staging="$RUNNER_TEMP/tf2x10-${version}"
           mkdir -p "$staging/addons/sourcemod/plugins" \
-                   "$staging/addons/sourcemod/configs" \
-                   "$staging/addons/sourcemod/scripting"
-          cp compiled/*.smx "$staging/addons/sourcemod/plugins/"
-          cp addons/sourcemod/configs/*.txt "$staging/addons/sourcemod/configs/"
-          cp addons/sourcemod/update.txt "$staging/addons/sourcemod/"
-          cp addons/sourcemod/scripting/*.sp "$staging/addons/sourcemod/scripting/"
-          zip -qr "tf2x10-${version}.zip" "$staging"
+                   "$staging/addons/sourcemod/configs"
+          cp compiled/tf2x10.smx compiled/tf2items_randomizer.smx "$staging/addons/sourcemod/plugins/"
+          cp addons/sourcemod/configs/x10.*.txt "$staging/addons/sourcemod/configs/"
+          ( cd "$staging" && zip -qr "$GITHUB_WORKSPACE/tf2x10-${version}.zip" addons )
           unzip -l "tf2x10-${version}.zip"
 
       - name: Write the release notes
@@ -56,7 +56,7 @@ jobs:
 
           ## Install
 
-          Download \`tf2x10-${GITHUB_REF_NAME}.zip\` and extract it into your \`tf2\` folder, so the contents land in \`tf2/addons/sourcemod/\`. The individual files are attached as well if you only want one of the two plugins.
+          Download \`tf2x10-${GITHUB_REF_NAME}.zip\` and extract it into your \`tf2\` folder. The archive is laid out as \`addons/sourcemod/...\` with no top-level directory, so the plugins and configs land where SourceMod reads them. Delete \`plugins/tf2items_randomizer.smx\` if you do not want the randomizer; tf2x10 does not need it. Each file is attached individually as well.
 
           Both plugins stop at startup without \`addons/sourcemod/gamedata/tf2items.randomizer.txt\`, which comes with [TF2Items] Randomizer. tf2x10 also needs TF2Items, TF2Attributes, SteamWorks and optionally Updater; the randomizer needs TF2Items and TF2Attributes.
 
